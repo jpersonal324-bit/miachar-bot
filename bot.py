@@ -1,4 +1,5 @@
 import os
+import json
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 
@@ -7,8 +8,13 @@ API_HASH = os.environ["API_HASH"]
 SESSION = os.environ["SESSION_STRING"]
 
 MENSAJE = "Hola bb\nVideollamada 45 dolares 20 min\n30 dolares 10 min\n30 dolares 10 videos\nAcepto PayPal Zelle y Remitly"
+ARCHIVO = "respondidos.json"
 
-respondidos = set()
+if os.path.exists(ARCHIVO):
+      with open(ARCHIVO) as f:
+            respondidos = set(json.load(f))
+else:
+      respondidos = set()
 
 client = TelegramClient(StringSession(SESSION), API_ID, API_HASH)
 
@@ -18,6 +24,8 @@ async def handler(event):
       if sender_id not in respondidos:
             respondidos.add(sender_id)
             await event.respond(MENSAJE)
+            with open(ARCHIVO, "w") as f:
+                  json.dump(list(respondidos), f)
 
 print("Userbot iniciado...")
 client.start()
