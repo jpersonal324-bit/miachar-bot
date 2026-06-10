@@ -14,10 +14,10 @@ client = TelegramClient(StringSession(SESSION), API_ID, API_HASH)
 
 @client.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def handler(event):
-    sender_id = event.sender_id
-        if sender_id not in respondidos:
-                respondidos.add(sender_id)
-                        await event.respond(MENSAJE)
+      sender_id = event.sender_id
+      if sender_id not in respondidos:
+            respondidos.add(sender_id)
+            await event.respond(MENSAJE)
 
 print("Userbot iniciado...")
 client.start()
