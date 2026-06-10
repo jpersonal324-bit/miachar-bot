@@ -1,28 +1,30 @@
 import os
-from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
+from telethon import TelegramClient, events
+from telethon.sessions import StringSession
 
-TOKEN = os.environ.get("BOT_TOKEN", "8781692817:AAG0mlcujZUI54IbWmoIr9KRlnUYX0BwKgE")
+API_ID = int(os.environ["API_ID"])
+API_HASH = os.environ["API_HASH"]
+SESSION = os.environ["SESSION_STRING"]
 
-usuarios_vistos = set()
-
-MENSAJE_BIENVENIDA = (
-      "Hola bb\n\n"
-      "Videollamada:\n"
-      "45 dolares 20 minutos\n"
-      "30 dolares 10 minutos\n\n"
-      "30 dolares 10 videos\n\n"
-      "Acepto: PayPal, Zelle y Remitly"
+MENSAJE = (
+          "Hola bb\n"
+          "Videollamada 45 dolares 20 min\n"
+          "30 dolares 10 min\n"
+          "30 dolares 10 videos\n"
+          "Acepto PayPal Zelle y Remitly"
 )
 
-async def responder(update: Update, context: ContextTypes.DEFAULT_TYPE):
-      user_id = update.effective_user.id
-      if user_id not in usuarios_vistos:
-                usuarios_vistos.add(user_id)
-                await update.message.reply_text(MENSAJE_BIENVENIDA)
+respondidos = set()
 
-  if __name__ == "__main__":
-        app = ApplicationBuilder().token(TOKEN).build()
-        app.add_handler(MessageHandler(filters.TEXT & filters.ChatType.PRIVATE, responder))
-        print("Bot corriendo...")
-        app.run_polling()
+client = TelegramClient(StringSession(SESSION), API_ID, API_HASH)
+
+@client.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
+async def handler(event):
+          sender_id = event.sender_id
+          if sender_id not in respondidos:
+                        respondidos.add(sender_id)
+                        await event.respond(MENSAJE)
+
+      print("Userbot iniciado...")
+client.start()
+client.run_until_disconnected()
